@@ -1,0 +1,94 @@
+const User = require('../../models/web/user.model.js');
+const { comparePassword, hashPassword } = require('../../utils/bcrypt.js');
+const generateJWT = require('../../utils/jwt.js')
+
+
+
+// Register
+const registerUser = async (req, res) => {
+    try {
+        const {
+            fullName,
+            email,
+            password
+        } = req.body;
+
+
+        // check blank fields
+        if (!fullName || fullName && fullName.trim() === "" || !email || email && email.trim() === "" || !password || password && password.trim() === "") {
+            return res.status(401).json({ success: false, error: " Name, Email, and Password are compulsary" });
+        }
+
+        // check if affiliate is already existed
+        const isUserExisted = await User.findOne({ email });
+
+        // 
+        if (isUserExisted) {
+            return res.status(401).json({ success: false, error: "User is already existed. Please login or choose other user name" });
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        // create Vendor
+        const newUser = new User({
+            fullName,
+            email,
+            password : hashedPassword
+        })
+
+        // save affiliate
+        await newUser.save();
+
+        // return response
+        res.status(200).json({ success: true, Message: "User has been  sucessfully register." });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// Login
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || email && email.trim() === "" || !password || password && password.trim() === "") {
+            return res.status(401).json({ success: false, error: "All fields are compulsary" });
+        }
+
+        const user = await User.findOne({email});
+
+
+        if (!user) {
+            return res.status(401).json({ success: false, error: "User is not existed." });
+        }
+
+        // compare password
+        const isPasswordCorrect = await comparePassword(password, user.password);
+
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ success: false, error: "Invalid password" });
+        }
+
+        const payload = {
+            _id: user._id,
+            email: user.email
+        }
+
+        // generate jwt token
+        const accessToken = generateJWT(payload);
+
+        res.cookie("AccessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None'
+        });
+
+        // return response
+        return res.status(200).json({ success: true, Message: "User has been sucessfully Loged in." });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+module.exports = {registerUser, loginUser}
