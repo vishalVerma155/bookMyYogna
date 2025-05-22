@@ -33,7 +33,7 @@ const registerUser = async (req, res) => {
         const newUser = new User({
             fullName,
             email,
-            password : hashedPassword
+            password: hashedPassword
         })
 
         // save affiliate
@@ -55,7 +55,7 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ success: false, error: "All fields are compulsary" });
         }
 
-        const user = await User.findOne({email});
+        const user = await User.findOne({ email });
 
 
         if (!user) {
@@ -91,4 +91,27 @@ const loginUser = async (req, res) => {
     }
 }
 
-module.exports = {registerUser, loginUser}
+const getUserProfile = async (req, res) => {
+    try {
+
+        const userId = req.user._id;
+
+        if (!userId) {
+            return res.status(400).json({ success: true, error: "user id not found" });
+        }
+
+        const user = await User.findById(userId).select('-password');
+
+        if (!user) {
+            return res.status(400).json({ success: true, error: "user not found" });
+        }
+
+        // return response
+        return res.status(200).json({ success: true, Message: "User has been sucessfully fetched", user });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+module.exports = { registerUser, loginUser, getUserProfile }

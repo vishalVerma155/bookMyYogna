@@ -14,7 +14,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // routes
-const userRoutes = require('./routes/web/user.routes.js')
+const userRoutes = require('./routes/web/user.routes.js');
+const panditRouter = require("./routes/panditCard/panditCard.routes.js")
 
 app.use(cors({
     origin: "*"
@@ -26,6 +27,7 @@ app.use(cors({
 const dbconnect = require('./config/database.js');
 
 app.use("/user", userRoutes);
+app.use('/pandit', panditRouter);
 
 
 // Start the server
