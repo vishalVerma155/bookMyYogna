@@ -1,6 +1,6 @@
 
 const express = require('express');
-const {loginUser, registerUser, getUserProfile} = require('../../controllers/web/user.controllers.js');
+const {loginUser, registerUser, getUserProfile, logoutUser, getUserProfilesForAdmin} = require('../../controllers/web/user.controllers.js');
 const verifyJWT = require('../../middleware/authMiddleware.js');
 
 
@@ -15,7 +15,12 @@ router.post("/registerUser", registerUser);
 router.post("/loginUser", loginUser);
 
 // get user profile
-router.get("/getUserProfile", verifyJWT, getUserProfile)
+router.get("/getUserProfile", verifyJWT, getUserProfile);
+
+router.get("/getUserProfilesAdmin", verifyJWT, getUserProfilesForAdmin);
+
+
+router.get("/logoutUser", verifyJWT, logoutUser);
 
 
 

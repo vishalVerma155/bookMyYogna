@@ -114,4 +114,39 @@ const getUserProfile = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser, getUserProfile }
+
+const getUserProfilesForAdmin = async (req, res) => {
+    try {
+
+        if (req.user.full !== "admin") {
+            return res.status(400).json({ success: true, error: "Only admin can do this" });
+        }
+        
+        const user = await User.find().select('-password');
+
+        // return response
+        return res.status(200).json({ success: true, Message: "Users has been sucessfully fetched", user });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+
+// Admin Logout
+const logoutUser = async (req, res) => {
+    try {
+        res.clearCookie("AccessToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+        });
+
+        return res.json({ success: true, message: "Logged out successfully" });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin }
