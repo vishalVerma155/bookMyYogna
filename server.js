@@ -15,7 +15,8 @@ app.use(cookieParser());
 
 // routes
 const userRoutes = require('./routes/web/user.routes.js');
-const panditRouter = require("./routes/panditCard/panditCard.routes.js")
+const panditRouter = require("./routes/panditCard/panditCard.routes.js");
+const poojaRoutes = require('./routes/poooja/pooja.routes.js')
 
 app.use(cors({
     origin: "*"
@@ -28,6 +29,7 @@ const dbconnect = require('./config/database.js');
 
 app.use("/user", userRoutes);
 app.use('/pandit', panditRouter);
+app.use("/pooja", poojaRoutes)
 
 
 // Start the server

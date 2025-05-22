@@ -21,7 +21,7 @@ router.get("/getAllPandits", getAllPandits);
 
 router.get("/getPandit/:id", getPanditById);
 
-router.patch("/updatePanditcard/:id", verifyJWT, updatePandit);
+router.patch("/updatePanditcard/:id", verifyJWT,upload.single('panditImage'), updatePandit);
 
 router.delete("/deletePanditCard/:id", verifyJWT, deletePandit);
 
