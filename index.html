@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GET Request Example</title>
+</head>
+<body>
+  <h1>GET Request Example</h1>
+  <button id="fetchBtn">Fetch Data</button>
+  <pre id="output"></pre>
+
+  <script>
+    document.getElementById('fetchBtn').addEventListener('click', () => {
+      fetch('https://bookmyyogna.onrender.com/pandit/getAllPandits')
+        .then(response => {
+            console.log(response)
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+          document.getElementById('output').textContent = 'Error: ' + error.message;
+        });
+    });
+  </script>
+</body>
+</html>
