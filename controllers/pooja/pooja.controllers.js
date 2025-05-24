@@ -172,6 +172,30 @@ const getPoojaById = async (req, res) => {
     }
 };
 
+const getSelectedPlan = async(req, res) =>{
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(404).json({ success: false, error: "Plan ID not provided" });
+        }
+
+        const plan = await PoojaPlans.findById(id);
+
+        if (!plan) {
+            return res.status(404).json({ success: false, error: "Pooja not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Plan fetched successfully",
+            plan
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
+
 // Update Pooja by ID
 const updatePooja = async (req, res) => {
     try {
@@ -229,5 +253,6 @@ module.exports = {
     getAllPoojas,
     getPoojaById,
     updatePooja,
-    deletePooja
+    deletePooja,
+    getSelectedPlan
 };

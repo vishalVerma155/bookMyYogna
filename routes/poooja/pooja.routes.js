@@ -5,6 +5,7 @@ const { createPooja,
     getAllPoojas,
     getPoojaById,
     updatePooja,
+    getSelectedPlan,
     deletePooja} = require('../../controllers/pooja/pooja.controllers.js');
 const { upload } = require('../../utils/multer.js');
 
@@ -20,6 +21,9 @@ router.post("/createPooja", verifyJWT, upload.single('poojaImage'), createPooja)
 router.get("/getAllPoojas", getAllPoojas);
 
 router.get("/getPooja/:id", getPoojaById);
+
+router.get("/getSelectedPlan/:id",verifyJWT, getSelectedPlan);
+
 
 router.patch("/updatePooja/:id", verifyJWT,upload.single('poojaImage'), updatePooja);
 
