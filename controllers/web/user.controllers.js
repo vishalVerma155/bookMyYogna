@@ -148,5 +148,14 @@ const logoutUser = async (req, res) => {
     }
 };
 
+const authenticationApiUser = (req, res) => {
+    try {
+        
+        return res.status(200).json({ success: true, message: "Authentication successfully." });
+    } catch (error) {
+        res.status(404).json({ success: false, error: error.message });
+    }
+}
 
-module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin }
+
+module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser }

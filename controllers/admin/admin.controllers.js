@@ -95,5 +95,13 @@ const loginAdmin = async (req, res) => {
     }
 };
 
-module.exports = {registerAdmin, loginAdmin}
+const authenticationApiAdmin = (req, res) => {
+    try {
+        return res.status(200).json({ success: true, message: "Authentication successfully." });
+    } catch (error) {
+        res.status(404).json({ success: false, error: error.message });
+    }
+}
+
+module.exports = {registerAdmin, loginAdmin, authenticationApiAdmin};
 

@@ -1,6 +1,6 @@
 
 const express = require('express');
-const {registerAdmin, loginAdmin} = require('../../controllers/admin/admin.controllers.js');
+const {registerAdmin, loginAdmin, authenticationApiAdmin} = require('../../controllers/admin/admin.controllers.js');
 const verifyJWT = require('../../middleware/authMiddleware.js');
 
 
@@ -13,6 +13,8 @@ router.post("/registerAdmin", registerAdmin);
 
 // login admin
 router.post("/loginAdmin", loginAdmin);
+
+router.get("/authenticationApiAdmin", verifyJWT, authenticationApiAdmin);
 
 
 
