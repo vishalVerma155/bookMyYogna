@@ -21,7 +21,8 @@ const bookings = require("./routes/bookings/bookings.routes.js");
 const adminRoutes = require("./routes/admin/admin.routes.js")
 
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"]
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    credentials: true
 }));
 
 // app.use(cors({origin : "*"}))
