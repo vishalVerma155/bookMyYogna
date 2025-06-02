@@ -21,7 +21,7 @@ const createNotification = async (req, res) => {
             });
             await notification.save();
 
-            return res.status(201).json({ success: true, message: "Notification has been created", notification });
+            return res.status(201).json({ success: true, message: "Notification has been created"});
         }
 
         notification = new Notification({
@@ -31,7 +31,7 @@ const createNotification = async (req, res) => {
         });
         await notification.save();
 
-        return res.status(201).json({ success: true, message: "Notification has been created", notification});
+        return res.status(201).json({ success: true, message: "Notification has been created"});
 
     } catch (err) {
         return res.status(500).json({ success: false, error: 'Failed to create notification' });
