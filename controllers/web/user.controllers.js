@@ -33,7 +33,8 @@ const registerUser = async (req, res) => {
         const newUser = new User({
             fullName,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: "user"
         })
 
         // save affiliate
@@ -71,7 +72,8 @@ const loginUser = async (req, res) => {
 
         const payload = {
             _id: user._id,
-            email: user.email
+            email: user.email,
+            role: "user"
         }
 
         // generate jwt token
@@ -118,10 +120,10 @@ const getUserProfile = async (req, res) => {
 const getUserProfilesForAdmin = async (req, res) => {
     try {
 
-        if (req.user.full !== "admin") {
+        if (req.user.role !== "admin") {
             return res.status(400).json({ success: true, error: "Only admin can do this" });
         }
-        
+
         const user = await User.find().select('-password');
 
         // return response
@@ -130,6 +132,81 @@ const getUserProfilesForAdmin = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message });
     }
+}
+
+const changeUserPassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body; // take details
+
+        if (!currentPassword || currentPassword && currentPassword.trim() === "" || !newPassword || newPassword && newPassword.trim() === "") {
+            return res.status(401).json({ success: false, error: "Please enter all fields" });
+        }
+
+        const userId = req.user._id;
+        const user = await User.findById(userId);
+
+        // compare password
+        const isPasswordCorrect = await comparePassword(currentPassword, user.password);
+
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ success: false, error: "password is not matched" });
+        }
+
+        const newHashedPassword = await hashPassword(newPassword); // hash new password
+        user.password = newHashedPassword;
+
+        await user.save(); // save user password
+
+        return res.status(200).json({ success: true, Message: "Password has been chenged" });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+const editUser = async (req, res) => {
+    try {
+
+        const { fullName, country, address, phoneNumber} = req.body;
+        const user = req.user._id;
+       
+
+
+        if (!user) {
+            return res.status(500).json({ success: false, error: "User is not loged in" });
+        }
+
+
+        let payload = {};
+        if (fullName && fullName.trim() !== "") {
+            payload.firstName = firstName;
+        }
+
+
+        if (country && country.trim() !== "") {
+            payload.country = country;
+        }
+
+        if (address && address.trim() !== "") {
+            payload.address = address;
+        }
+
+        if ( phoneNumber) {
+            payload.phoneNumber = phoneNumber;
+        }
+
+
+
+        const updatedAffiliate = await User.findByIdAndUpdate(user, payload, { new: true, runValidators: true });
+
+        if (!updatedAffiliate) {
+            return res.status(400).json({ success: false, error: "User is not updated" });
+        }
+
+        return res.status(200).json({ success: true, message: "User is updated", updatedAffiliate });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+
 }
 
 
@@ -150,7 +227,7 @@ const logoutUser = async (req, res) => {
 
 const authenticationApiUser = (req, res) => {
     try {
-        
+
         return res.status(200).json({ success: true, message: "Authentication successfully." });
     } catch (error) {
         res.status(404).json({ success: false, error: error.message });
@@ -158,4 +235,4 @@ const authenticationApiUser = (req, res) => {
 }
 
 
-module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser }
+module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser, changeUserPassword, editUser }

@@ -18,7 +18,8 @@ const userRoutes = require('./routes/web/user.routes.js');
 const panditRouter = require("./routes/panditCard/panditCard.routes.js");
 const poojaRoutes = require('./routes/poooja/pooja.routes.js');
 const bookings = require("./routes/bookings/bookings.routes.js");
-const adminRoutes = require("./routes/admin/admin.routes.js")
+const adminRoutes = require("./routes/admin/admin.routes.js");
+const notificationRouter = require("./routes/notification/notification.routes.js")
 
 app.use(cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -35,6 +36,7 @@ app.use('/pandit', panditRouter);
 app.use("/pooja", poojaRoutes);
 app.use("/bookings", bookings);
 app.use("/admin", adminRoutes);
+app.use("/notification", notificationRouter)
 
 
 // Start the server

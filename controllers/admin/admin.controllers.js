@@ -27,7 +27,8 @@ const registerAdmin = async (req, res) => {
         const newUser = new Admin({
             fullName,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role : "admin"
         })
 
         // save admin
@@ -77,7 +78,8 @@ const loginAdmin = async (req, res) => {
         const accessToken = generateJWT({
             _id: user._id,
             email: user.email,
-            fullName : user.fullName
+            fullName : user.fullName,
+            role : user.role
         });
 
         await user.save();
