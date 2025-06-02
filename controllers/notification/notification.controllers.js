@@ -5,35 +5,33 @@ const Notification = require('../../models/notification/notification.model.js');
 // Create and send a notification
 const createNotification = async (req, res) => {
     try {
-        const { recipient, message, sender, senderRole, heading, receiverRole } = req.body;
-        
+        const { recipient, message, heading, receiverRole } = req.body;
+       
 
-        if (!recipient || recipient && recipient.trim() === "" || !sender || sender && sender.trim() === "" || !senderRole || senderRole && senderRole.trim() === "" || !receiverRole || receiverRole && receiverRole.trim() === "") {
-            return res.status(400).json({ success: false, error: "Receipt, sender, senderRole, receiverRole are compulsary" });
+        if (!recipient || recipient && recipient.trim() === "" || !receiverRole || receiverRole && receiverRole.trim() === "") {
+            return res.status(400).json({ success: false, error: "Receipt, receiverRole are compulsary" });
         }
 
         let notification = undefined;
-        if (senderRole === "admin") {
+        if (receiverRole !== "admin") {
             notification = new Notification({
                 recipient,
                 message,
                 heading,
-                senderAdmin: sender
             });
             await notification.save();
 
-            return res.status(201).json({ success: true, message: "Notification has been sent" });
+            return res.status(201).json({ success: true, message: "Notification has been created", notification });
         }
 
         notification = new Notification({
-            sender,
             message,
             heading,
             recipientAdmin: recipient
         });
         await notification.save();
 
-        return res.status(201).json({ success: true, message: "Notification has been created"});
+        return res.status(201).json({ success: true, message: "Notification has been created", notification});
 
     } catch (err) {
         return res.status(500).json({ success: false, error: 'Failed to create notification' });

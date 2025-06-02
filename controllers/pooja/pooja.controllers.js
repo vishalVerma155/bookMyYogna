@@ -5,80 +5,80 @@ const { Pooja, PoojaPlans } = require('../../models/poojaModel/pooja.model.js');
 const mongoose = require('mongoose');
 
 const createPooja = async (req, res) => {
-  const session = await mongoose.startSession();
+    const session = await mongoose.startSession();
 
-  try {
-    session.startTransaction();
+    try {
+        session.startTransaction();
 
-    const {
-      heading,
-      subHeading,
-      description,
-      rating,
-      plans,
-      benefitsOfPooja,
-      poojaVideo
-    } = req.body;
+        const {
+            heading,
+            subHeading,
+            description,
+            rating,
+            plans,
+            benefitsOfPooja,
+            poojaVideo
+        } = req.body;
 
-    const image = req.file?.path || undefined;
+        const image = req.file?.path || undefined;
 
-    if (!heading || heading.trim() === "") {
-      await session.abortTransaction();
-      return res.status(400).json({ success: false, error: "Required fields missing" });
+        if (!heading || heading.trim() === "") {
+            await session.abortTransaction();
+            return res.status(400).json({ success: false, error: "Required fields missing" });
+        }
+
+        const newPooja = new Pooja({
+            heading,
+            image,
+            subHeading,
+            description,
+            rating: rating || 0,
+            benefitsOfPooja: benefitsOfPooja || [],
+            poojaVideo: poojaVideo || ""
+        });
+
+
+        const newPoojaPlans = [];
+
+        for (const plan of plans) {
+            const createdPlan = await PoojaPlans.create([{
+                heading: plan.heading,
+                amount: plan.amount,
+                features: plan.features,
+                poojaId: newPooja._id,
+                numberOfDays: plan.numberOfDays,
+                durationOfPooja: plan.durationOfPooja
+            }], { session });
+
+            newPooja.poojaPlans.push(createdPlan[0])
+            newPoojaPlans.push(createdPlan[0]);
+        }
+
+        await newPooja.save({ session });
+
+        await session.commitTransaction();
+
+        return res.status(200).json({
+            success: true,
+            message: "Pooja created successfully",
+            pooja: {
+                heading: newPooja.heading,
+                image: newPooja.image,
+                subHeading: newPooja.subHeading,
+                description: newPooja.description,
+                rating: newPooja.rating,
+                benefitsOfPooja: newPooja.benefitsOfPooja,
+                poojaVideo: newPooja.poojaVideo,
+                poojaPlans: newPooja.poojaPlans
+            }
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        return res.status(500).json({ success: false, error: error.message });
+    } finally {
+        session.endSession();
     }
-
-    const newPooja = new Pooja({
-      heading,
-      image,
-      subHeading,
-      description,
-      rating: rating || 0,
-      benefitsOfPooja: benefitsOfPooja || [],
-      poojaVideo: poojaVideo || ""
-    });
-
-
-    const newPoojaPlans = [];
-
-    for (const plan of plans) {
-      const createdPlan = await PoojaPlans.create([{
-        heading: plan.heading,
-        amount: plan.amount,
-        features: plan.features,
-        poojaId: newPooja._id,
-        numberOfDays: plan.numberOfDays,
-        durationOfPooja: plan.durationOfPooja
-      }], { session });
-
-      newPooja.poojaPlans.push(createdPlan[0])
-      newPoojaPlans.push(createdPlan[0]);
-    }
-
-    await newPooja.save({ session });
-
-    await session.commitTransaction();
-
-    return res.status(200).json({
-      success: true,
-      message: "Pooja created successfully",
-      pooja: {
-        heading: newPooja.heading,
-        image: newPooja.image,
-        subHeading: newPooja.subHeading,
-        description: newPooja.description,
-        rating: newPooja.rating,
-        benefitsOfPooja: newPooja.benefitsOfPooja,
-        poojaVideo: newPooja.poojaVideo,
-        poojaPlans : newPooja.poojaPlans
-      }
-    });
-
-  } catch (error) {
-    await session.abortTransaction();
-    return res.status(500).json({ success: false, error: error.message });
-  } finally {
-    session.endSession();
-  }
 };
 
 
@@ -135,12 +135,12 @@ const createPooja = async (req, res) => {
 const getAllPoojas = async (req, res) => {
     try {
         const poojas = await Pooja.find().select("-video").populate('poojaPlans').sort({ createdAt: -1 });
-        
+
 
         return res.status(200).json({
             success: true,
             message: "All Poojas fetched successfully",
-            poojas 
+            poojas
         });
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message });
@@ -172,7 +172,7 @@ const getPoojaById = async (req, res) => {
     }
 };
 
-const getSelectedPlan = async(req, res) =>{
+const getSelectedPlan = async (req, res) => {
     try {
         const { id } = req.params;
 

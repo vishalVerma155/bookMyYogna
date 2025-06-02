@@ -32,8 +32,8 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['bookingPending', 'bookingConfirmed', 'completed', 'bookingCancelled'],
-    default: 'bookingPending'
+    enum: ['Pending', 'Confirmed', 'completed', 'Cancelled'],
+    default: 'Pending'
   },
   amount: {
     type: Number,

@@ -1,6 +1,7 @@
 const User = require('../../models/web/user.model.js');
 const { comparePassword, hashPassword } = require('../../utils/bcrypt.js');
-const generateJWT = require('../../utils/jwt.js')
+const generateJWT = require('../../utils/jwt.js');
+const Admin = require('../../models/admin/admin.model.js')
 
 
 
@@ -39,6 +40,20 @@ const registerUser = async (req, res) => {
 
         // save affiliate
         await newUser.save();
+
+        const admin = await Admin.findOne({ role: "admin" })
+
+        const notification = await axios.post(
+            "https://bookmyyogna.onrender.com/notification/createNotification",
+            {
+                recipient: admin._id,
+                heading: `New user registered`,
+                message: `New user ${newUser.fullName} has been register on Book my yagna`,
+                sender: userId,
+                senderRole: req.user.role,
+                receiverRole: admin.role
+            }
+        );
 
         // return response
         res.status(200).json({ success: true, Message: "User has been  sucessfully register." });
@@ -166,9 +181,9 @@ const changeUserPassword = async (req, res) => {
 const editUser = async (req, res) => {
     try {
 
-        const { fullName, country, address, phoneNumber} = req.body;
+        const { fullName, country, address, phoneNumber } = req.body;
         const user = req.user._id;
-       
+
 
 
         if (!user) {
@@ -190,7 +205,7 @@ const editUser = async (req, res) => {
             payload.address = address;
         }
 
-        if ( phoneNumber) {
+        if (phoneNumber) {
             payload.phoneNumber = phoneNumber;
         }
 
