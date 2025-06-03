@@ -1,7 +1,10 @@
 const User = require('../../models/web/user.model.js');
 const { comparePassword, hashPassword } = require('../../utils/bcrypt.js');
 const generateJWT = require('../../utils/jwt.js');
-const Admin = require('../../models/admin/admin.model.js')
+const Admin = require('../../models/admin/admin.model.js');
+const {sendOTPEmail} = require('../../utils/emailServices.js');
+const generateOTP = require('../../utils/otpGenerater.js');
+const axios = require('axios');
 
 
 
@@ -249,5 +252,66 @@ const authenticationApiUser = (req, res) => {
     }
 }
 
+const forgotPassword = async (req, res) => {
 
-module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser, changeUserPassword, editUser }
+   try {
+      const { email } = req.body;
+
+      const user = await User.findOne({ email });
+      if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+      const otp = generateOTP();
+      const hashedOTP = await hashPassword(otp);
+
+      user.otp = hashedOTP;
+      user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+      await user.save();
+
+      await sendOTPEmail(email, otp);
+      res.status(200).json({ success: true, message: 'OTP sent to email' });
+
+   } catch (error) {
+      res.status(500).json({ success: false, message: 'Error sending email', error: error.message });
+   }
+};
+
+
+const matchOTP = async (req, res) => {
+   try {
+      const { email, otp } = req.body;
+
+      if(!otp || !email){
+         return res.status(400).json({ success: false, error: 'otp and email are required' });
+      }
+
+      const credential = {};
+
+      if (email && email.trim() !== "") {
+         credential.email = email
+      }
+
+      const user = await User.findOne(credential);
+      if (!user) {
+         return res.status(400).json({ success: false, error: 'User not found' });
+      }
+
+
+      if (user.otpExpires < Date.now()) {
+         return res.status(400).json({ message: 'OTP has expired' });
+      }
+
+      const isOTPCorrect = await comparePassword(otp, user.otp);
+
+      if (!isOTPCorrect) {
+         return res.status(400).json({ success: false, error: 'Invalid OTP' });
+      }
+
+      return res.status(200).json({ success: true, message: 'Otp matched successfully' });
+   } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+   }
+};
+
+
+module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser, changeUserPassword, editUser, forgotPassword, matchOTP }
