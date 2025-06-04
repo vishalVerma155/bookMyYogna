@@ -52,8 +52,6 @@ const registerUser = async (req, res) => {
                 recipient: admin._id,
                 heading: `New user registered`,
                 message: `New user ${newUser.fullName} has been register on Book my yagna`,
-                sender: userId,
-                senderRole: req.user.role,
                 receiverRole: admin.role
             }
         );
