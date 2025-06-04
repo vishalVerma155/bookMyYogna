@@ -1,6 +1,6 @@
 
 const express = require('express');
-const {loginUser, registerUser, getUserProfile, logoutUser,authenticationApiUser, getUserProfilesForAdmin, editUser, changeUserPassword, matchOTP, forgotPassword} = require('../../controllers/web/user.controllers.js');
+const {loginUser, registerUser, getUserProfile, logoutUser,authenticationApiUser, getUserProfilesForAdmin, editUser, changeUserPassword, matchOTP, forgotPassword, resetPassword} = require('../../controllers/web/user.controllers.js');
 const verifyJWT = require('../../middleware/authMiddleware.js');
 
 
@@ -33,6 +33,8 @@ router.get("/authenticateUser", verifyJWT, authenticationApiUser);
 router.post("/forgetPassword", forgotPassword);
 
 router.post("/matchOtp", matchOTP);
+
+router.patch("/resetPassword", resetPassword)
 
 
 

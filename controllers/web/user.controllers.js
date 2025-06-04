@@ -313,5 +313,42 @@ const matchOTP = async (req, res) => {
    }
 };
 
+const resetPassword = async (req, res) => {
+   try {
+      const { email, otp, newPassword } = req.body;
 
-module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser, changeUserPassword, editUser, forgotPassword, matchOTP }
+      const user = await User.findOne({email});
+
+      if (!user) {
+         return res.status(400).json({ success: false, error: 'User not found' });
+      }
+
+      if (!user.otp) {
+         return res.status(400).json({ success: false, error: 'Otp not found' });
+      }
+      
+      if (!user.otpExpires || user.otpExpires < Date.now()) {
+         return res.status(400).json({ message: 'OTP has expired' });
+      }
+      
+      const isOTPCorrect = await comparePassword(otp, user.otp);
+      
+      if (!isOTPCorrect) {
+         return res.status(400).json({ success: false, error: 'Invalid OTP' });
+      }
+      
+      const hashedPassword = await hashPassword(newPassword);
+     
+      user.password = hashedPassword;
+      user.otp = undefined;
+      user.otpExpires = undefined;
+      await user.save();
+   
+      res.status(200).json({ success: true, message: 'Password reset successful' });
+   } catch (error) {
+      res.status(500).json({ success: false, message: 'Error sending email', error: error.message });
+   }
+};
+
+
+module.exports = { registerUser, loginUser, getUserProfile, logoutUser, getUserProfilesForAdmin, authenticationApiUser, changeUserPassword, editUser, forgotPassword, matchOTP, resetPassword }
